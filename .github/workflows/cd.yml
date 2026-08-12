@@ -30,6 +30,14 @@ jobs:
     - name: Check out code
       uses: actions/checkout@v6
 
+    - name: Set up Go
+      uses: actions/setup-go@v6
+      with:
+        go-version: "1.25.8"
+        
+    - name: Build Code
+      run: ./scripts/buildprod.sh
+
     - id: 'auth'
       uses: 'google-github-actions/auth@v2'
       with:
@@ -40,10 +48,6 @@ jobs:
 
     - name: 'Use gcloud CLI'
       run: 'gcloud info'
-
-    - name: Build Code
-      run: ./scripts/buildprod.sh
-
 
     - name: build docker image
       run: gcloud builds submit --tag us-central1-docker.pkg.dev/project-8619a5e0-9ad6-4e4a-936/notely-ar-repo/notely:latest .
