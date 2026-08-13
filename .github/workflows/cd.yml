@@ -5,9 +5,12 @@ on:
     branches: [main]
 
 jobs:
-  tests:
+  deploy:
     name: Deploy
     runs-on: ubuntu-latest
+        # This part
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
     steps:
       - name: Check out code
@@ -34,6 +37,12 @@ jobs:
 
       - name: gcloud builds submit
         run: gcloud builds submit --tag us-central1-docker.pkg.dev/project-8619a5e0-9ad6-4e4a-936/notely-ar-repo/notely:latest .
+
+      - name: Install Goose
+        run: go install github.com/pressly/goose/v3/cmd/goose@latest
+        
+      - name: database migration
+        run: ./scripts/migrateup.sh
 
       - name: Deploy to Cloud Run
         run: gcloud run deploy notely --image us-central1-docker.pkg.dev/project-8619a5e0-9ad6-4e4a-936/notely-ar-repo/notely:latest --region us-central1 --allow-unauthenticated --project project-8619a5e0-9ad6-4e4a-936 --max-instances=4
